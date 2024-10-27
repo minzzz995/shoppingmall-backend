@@ -19,4 +19,19 @@ userController.createUser = async(req, res)=>{
         res.status(400).json({status: "fail", error: error.message})
     }
 }
+
+userController.getUser = async(req, res)=>{
+    try{
+        const { userId } = req
+        const user = await User.findById(userId)
+
+        if(user){
+            return res.status(200).json({status:"Success", user})
+        }
+        throw new Error("invalid email or password")
+
+    } catch (error) {
+        res.status(400).json({status: "fail", error: error.message})
+    }
+}
 module.exports=userController
