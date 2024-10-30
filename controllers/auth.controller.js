@@ -41,7 +41,7 @@ authController.authenticate = async (req, res, next) => {
 authController.checkAdminPermission = async (req, res, next) => {
     try {
         const {userId} = req
-        const suer = await User.findById(userId)
+        const user = await User.findById(userId)
         if(user.level !== "admin") throw new Error("no permission")
         next();
     } catch(error){
