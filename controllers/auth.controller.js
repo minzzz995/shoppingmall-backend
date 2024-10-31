@@ -13,7 +13,7 @@ authController.loginWithEmail = async (req, res) => {
             const isMatch = await bcrypt.compare(password, user.password)
             if(isMatch){
                 const token = await user.generateToken()
-                console.log(token)
+                // console.log(token)
                 return res.status(200).json({status:"success", user, token})
             }
         }
