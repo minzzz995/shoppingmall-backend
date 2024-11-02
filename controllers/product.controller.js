@@ -54,4 +54,28 @@ productController.updateProduct = async (req, res) => {
     }
 }
 
+productController.deleteProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const product = await Product.findByIdAndDelete(productId);
+        if (!product) throw new Error("Product not found");
+
+        return res.status(200).json({ status: "Success", message: "Product deleted" });
+    } catch (error) {
+        return res.status(400).json({ status: "fail", error: error.message });
+    }
+};
+
+productController.getProductDetail = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const product = await Product.findById(id);
+      if (!product) {
+        return res.status(404).json({ status: "fail", error: "Product not found" });
+      }
+      return res.status(200).json({ status: "success", data: product });
+    } catch (error) {
+      return res.status(500).json({ status: "fail", error: error.message });
+    }
+  };
 module.exports=productController
