@@ -2,6 +2,7 @@ const cartController = {};
 const { response } = require("express");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const { populate } = require("dotenv");
 
 // 장바구니에 아이템 추가
 cartController.addToCart = async (req, res) => {
@@ -17,11 +18,12 @@ cartController.addToCart = async (req, res) => {
       cart = new Cart({
         userId,
         items: [{ productId, size, qty }],
-      });
+      })
+      await cart.save()
     } else {
       // 기존 카트에 같은 아이템이 있는지 확인
       const existingItemIndex = cart.items.findIndex(
-        (item) => item.productId.toString() === productId && item.size === size
+        (item) => item.productId.equals(productId) && item.size === size
       );
 
       if (existingItemIndex >= 0) {
@@ -29,22 +31,28 @@ cartController.addToCart = async (req, res) => {
         cart.items[existingItemIndex].qty += qty;
       } else {
         // 없으면 새 아이템 추가
-        cart.items.push({ productId, size, qty });
+        cart.items = [...cart.items, {productId, size, qty}]
+        await cart.save()
       }
     }
-
-    await cart.save();
-    return res.status(200).json({ status: "Success", data: cart });
+    // await cart.save();
+    return res.status(200).json({ status: "Success", data: cart, cartItemQty: cart.items.length });
   } catch (error) {
     return res.status(400).json({ status: "fail", error: error.message });
   }
 };
 
 // 장바구니 목록 가져오기
-cartController.getCartList = async (req, res) => {
+cartController.getCart = async (req, res) => {
   try {
     const { userId } = req;
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    const cart = await Cart.findOne({ userId }).populate({
+        path: "items",
+        populate: {
+            path: "productId",
+            model: "Product"
+        }
+    });
 
     if (!cart) {
       return res.status(200).json({ status: "Success", data: [] });
