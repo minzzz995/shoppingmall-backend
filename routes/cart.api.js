@@ -9,4 +9,5 @@ router.delete("/:itemId", authController.authenticate, cartController.deleteCart
 router.patch("/:itemId/qty", authController.authenticate, cartController.updateCartItemQty);
 router.get("/", authController.authenticate, cartController.getCart);
 
+router.get("/qty", authController.authenticate, cartController.getCartQty);
 module.exports = router;

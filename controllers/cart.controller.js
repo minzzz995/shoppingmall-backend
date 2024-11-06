@@ -114,6 +114,8 @@ cartController.getCartQty = async (req, res) => {
     const totalQty = cart ? cart.items.reduce((total, item) => total + item.qty, 0) : 0;
 
     return res.status(200).json({ status: "Success", cartItemCount: totalQty });
+    // if (!cart) throw new Error("There is no cart")
+    // res.status(200).json({status:200, qty: cart.items.length})
   } catch (error) {
     return res.status(400).json({ status: "fail", error: error.message });
   }
