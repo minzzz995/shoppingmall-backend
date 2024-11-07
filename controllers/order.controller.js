@@ -14,7 +14,6 @@ orderController.createOrder = async (req, res) => {
         const errorMessage = insufficientStockItems.reduce((total, item) => (total += item.message), "");
         return res.status(400).json({ status: "fail", error: errorMessage }); // Error 응답 반환
       }
-    //   console.log("randomStringGenerator:", randomStringGenerator); // 함수가 올바르게 로드되었는지 확인
 
       const newOrder = new Order({
         userId,
@@ -25,6 +24,9 @@ orderController.createOrder = async (req, res) => {
         orderNum: randomStringGenerator()
       });
       await newOrder.save();
+
+      // 재고 차감 (주문이 성공적으로 생성된 후에만 실행)
+      await productController.deductStock(orderList);
       res.status(200).json({ status: "success", orderNum: newOrder.orderNum });
     } catch (error) {
       return res.status(400).json({ status: "fail", error: error.message });
