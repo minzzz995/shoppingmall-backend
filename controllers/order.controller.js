@@ -73,4 +73,20 @@ orderController.createOrder = async (req, res) => {
     }
 };
 
+// 사용자 주문 목록 조회
+orderController.getOrder = async (req, res) => {
+    try {
+        const { userId } = req; // 인증을 통해 얻은 사용자 ID
+        const orders = await Order.find({ userId }); // userId로 주문 조회
+
+        if (!orders || orders.length === 0) {
+            return res.status(200).json({ status: "success", data: [] }); // 주문이 없을 때 빈 배열 반환
+        }
+
+        return res.status(200).json({ status: "success", data: orders }); // 주문 목록 반환
+    } catch (error) {
+        return res.status(500).json({ status: "fail", error: error.message });
+    }
+};
+
 module.exports = orderController;
