@@ -13,7 +13,6 @@ authController.loginWithEmail = async (req, res) => {
             const isMatch = await bcrypt.compare(password, user.password)
             if(isMatch){
                 const token = await user.generateToken()
-                // console.log(token)
                 return res.status(200).json({status:"success", user, token})
             }
         }
@@ -38,15 +37,30 @@ authController.authenticate = async (req, res, next) => {
     }
 }
 
+// authController.checkAdminPermission = async (req, res, next) => {
+//     try {
+//         const {userId} = req
+//         const user = await User.findById(userId)
+//         if(user.level !== "admin") throw new Error("no permission")
+//         next();
+//     } catch(error){
+//         res.status(400).json({status:"fail", error: error.message})
+//     }
+// }
+
 authController.checkAdminPermission = async (req, res, next) => {
     try {
-        const {userId} = req
-        const user = await User.findById(userId)
-        if(user.level !== "admin") throw new Error("no permission")
+        const { userId } = req;
+        const user = await User.findById(userId); // userId로 유저 정보 조회
+
+        if (!user) throw new Error("User not found");
+        if (user.level !== "admin") throw new Error("No permission");
+
+        req.user = user; // req.user에 유저 정보 저장
         next();
-    } catch(error){
-        res.status(400).json({status:"fail", error: error.message})
+    } catch (error) {
+        res.status(403).json({ status: "fail", error: error.message });
     }
-}
+};
 
 module.exports=authController

@@ -92,7 +92,6 @@ productController.getProductDetail = async (req, res) => {
 //     return {isVerify:true}
 //   }
   productController.checkStock = async (item) => {
-    console.log("checkStock실행")
     const product = await Product.findById(item.productId);
     if (product.stock[item.size] < item.qty) {
       return { isVerify: false, message: `${product.name}의 ${item.size} 재고가 부족합니다.` };
@@ -101,7 +100,6 @@ productController.getProductDetail = async (req, res) => {
   };
 
   productController.deductStock = async (itemList) => {
-    console.log("deductStock실행")
     await Promise.all(
       itemList.map(async (item) => {
         const product = await Product.findById(item.productId);

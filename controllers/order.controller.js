@@ -50,17 +50,89 @@ orderController.getOrder = async (req, res) => {
     }
 };
 
+// orderController.getAllOrders = async (req, res) => {
+//     if (req.user.level !== "admin") {
+//         return res.status(403).json({ status: "fail", error: "Access denied" });
+//     }
+    
+//     try {
+//         const orders = await Order.find({}); // 모든 주문을 조회
+//         return res.status(200).json({ status: "success", data: orders });
+//     } catch (error) {
+//         return res.status(500).json({ status: "fail", error: error.message });
+//     }
+// };
+
+// orderController.getAllOrders = async (req, res) => {
+//     if (req.user.level !== "admin") {
+//       return res.status(403).json({ status: "fail", error: "Access denied" });
+//     }
+  
+//     const { ordernum } = req.query;
+//     const query = {};
+  
+//     if (ordernum) {
+//       query.orderNum = ordernum; // 검색어에 따른 필터링 추가
+//     }
+  
+//     try {
+//       const orders = await Order.find(query); // 필터링된 결과 반환
+//       return res.status(200).json({ status: "success", data: orders });
+//     } catch (error) {
+//       return res.status(500).json({ status: "fail", error: error.message });
+//     }
+//   };
+
 orderController.getAllOrders = async (req, res) => {
     if (req.user.level !== "admin") {
-        return res.status(403).json({ status: "fail", error: "Access denied" });
+      return res.status(403).json({ status: "fail", error: "Access denied" });
     }
-    
+  
+    const { ordernum, page = 1, limit = 3 } = req.query;
+    const query = {};
+  
+    if (ordernum) {
+      query.orderNum = ordernum;
+    }
+  
     try {
-        const orders = await Order.find({}); // 모든 주문을 조회
-        return res.status(200).json({ status: "success", data: orders });
-    } catch (error) {
-        return res.status(500).json({ status: "fail", error: error.message });
-    }
-};
+      const orders = await Order.find(query)
+        .populate("items.productId", "name")
+        .skip((page - 1) * limit)
+        .limit(Number(limit));
+  
+      const totalOrders = await Order.countDocuments(query);
+      const totalPageNum = Math.ceil(totalOrders / limit);
 
+      return res.status(200).json({ status: "success", data: orders, totalPageNum });
+    } catch (error) {
+      return res.status(500).json({ status: "fail", error: error.message });
+    }
+  };
+
+// 주문 상태 업데이트
+orderController.updateOrderStatus = async (req, res) => {
+    if (req.user.level !== "admin") {
+      return res.status(403).json({ status: "fail", error: "Access denied" });
+    }
+  
+    const { id, status } = req.body;
+  
+    try {
+      const order = await Order.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
+  
+      if (!order) {
+        return res.status(404).json({ status: "fail", error: "Order not found" });
+      }
+  
+      return res.status(200).json({ status: "success", data: order });
+    } catch (error) {
+      return res.status(500).json({ status: "fail", error: error.message });
+    }
+  };
+  
 module.exports = orderController;
