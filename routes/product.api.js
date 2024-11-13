@@ -7,6 +7,6 @@ router.post("/", authController.authenticate, authController.checkAdminPermissio
 router.get("/", productController.getProducts)
 router.put("/:id", authController.authenticate, authController.checkAdminPermission, productController.updateProduct)
 router.delete("/:id", authController.authenticate, authController.checkAdminPermission, productController.deleteProduct);
-router.get("/:id", productController.getProductDetail); // 상품 상세 조회 엔드포인트 추가
+router.get("/:id", productController.getProductDetail);
 
 module.exports=router;
