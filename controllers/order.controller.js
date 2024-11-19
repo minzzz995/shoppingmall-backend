@@ -50,39 +50,6 @@ orderController.getOrder = async (req, res) => {
     }
 };
 
-// orderController.getAllOrders = async (req, res) => {
-//     if (req.user.level !== "admin") {
-//         return res.status(403).json({ status: "fail", error: "Access denied" });
-//     }
-    
-//     try {
-//         const orders = await Order.find({}); // 모든 주문을 조회
-//         return res.status(200).json({ status: "success", data: orders });
-//     } catch (error) {
-//         return res.status(500).json({ status: "fail", error: error.message });
-//     }
-// };
-
-// orderController.getAllOrders = async (req, res) => {
-//     if (req.user.level !== "admin") {
-//       return res.status(403).json({ status: "fail", error: "Access denied" });
-//     }
-  
-//     const { ordernum } = req.query;
-//     const query = {};
-  
-//     if (ordernum) {
-//       query.orderNum = ordernum; // 검색어에 따른 필터링 추가
-//     }
-  
-//     try {
-//       const orders = await Order.find(query); // 필터링된 결과 반환
-//       return res.status(200).json({ status: "success", data: orders });
-//     } catch (error) {
-//       return res.status(500).json({ status: "fail", error: error.message });
-//     }
-//   };
-
 orderController.getAllOrders = async (req, res) => {
     if (req.user.level !== "admin") {
       return res.status(403).json({ status: "fail", error: "Access denied" });
@@ -91,10 +58,14 @@ orderController.getAllOrders = async (req, res) => {
     const { ordernum, page = 1, limit = 3 } = req.query;
     const query = {};
   
+    // if (ordernum) {
+    //   query.orderNum = ordernum;
+    // }
+      // ordernum이 있으면 정규 표현식으로 부분 검색 설정
     if (ordernum) {
-      query.orderNum = ordernum;
+      query.orderNum = { $regex: ordernum, $options: "i" }; // 대소문자 구분 없이 검색
     }
-  
+    
     try {
       const orders = await Order.find(query)
         .populate("items.productId", "name")
