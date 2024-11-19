@@ -58,14 +58,10 @@ orderController.getAllOrders = async (req, res) => {
     const { ordernum, page = 1, limit = 3 } = req.query;
     const query = {};
   
-    // if (ordernum) {
-    //   query.orderNum = ordernum;
-    // }
-      // ordernum이 있으면 정규 표현식으로 부분 검색 설정
     if (ordernum) {
       query.orderNum = { $regex: ordernum, $options: "i" }; // 대소문자 구분 없이 검색
     }
-    
+
     try {
       const orders = await Order.find(query)
         .populate("items.productId", "name")
